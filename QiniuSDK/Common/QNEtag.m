@@ -44,8 +44,13 @@
     for (int i = 0; i < count; i++) {
         int offset = i * kQNBlockSize;
         int size = (len - offset) > kQNBlockSize ? kQNBlockSize : (len - offset);
-        NSData *d = [data subdataWithRange:NSMakeRange(offset, (unsigned int)size)];
-        CC_SHA1([d bytes], (CC_LONG)size, pblocksSha1 + i * CC_SHA1_DIGEST_LENGTH);
+        //此方法不适用200M的大图
+        //NSData *d = [data subdataWithRange:NSMakeRange(offset, (unsigned int)size)];
+        //CC_SHA1([d bytes], (CC_LONG)size, pblocksSha1 + i * CC_SHA1_DIGEST_LENGTH);
+        void* buffer = malloc(kQNBlockSize);
+        [data getBytes:buffer range:NSMakeRange(offset, (unsigned int)size)];
+        CC_SHA1(buffer, (CC_LONG)size, pblocksSha1 + i * CC_SHA1_DIGEST_LENGTH);
+        free(buffer);
     }
     if (count == 1) {
         ret[0] = 0x16;
